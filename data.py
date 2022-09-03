@@ -1,10 +1,19 @@
 import pandas as pd
 import seaborn as sns
 import numpy as numpy
-import glob
+import glob,os,sys
 
-customers = pd.read_csv("data/customers.csv")
-products = pd.read_csv("data/products.csv")
+try:
+    customers = pd.read_csv("data/customers.csv")
+except OSError:
+    print("Could not open/read customers file:")
+    sys.exit()
+
+try:
+    products = pd.read_csv("data/products.csv")
+except OSError:
+    print("Could not open/read products file:")
+    sys.exit()
 
 files_list=glob.glob('data/transactions/*')
 #print(files_list)
@@ -50,7 +59,13 @@ def transactions():
 #         print(final)
     return final
 
-final = transactions()
+try: 
+    final = transactions()
+except OSError:
+    print("Could not open/read transactions file:")
+    sys.exit()
+
+
 txns = final
 df_final = pd.merge(customers, txns, how = 'left' , on='customer_id' )
 master_table = pd.merge(df_final, products, how = 'left', on='product_id')
@@ -61,5 +76,13 @@ purchase_count_table = purchase_count_table.rename(columns={'product_id': 'purch
 master_table = pd.merge(master_table, purchase_count_table, how = 'left', on='customer_id')
 #print(master_table)
 
-master_table.to_csv("output/output.csv",index=False)
+try:
+    master_table.to_csv("output/output.csv",index=False)
+    master_table.to_json("output/output.json",orient='records')
+except OSError:
+    print("Could not write output file:")
+    sys.exit()
+
+
+
     
