@@ -3,12 +3,14 @@ import seaborn as sns
 import numpy as numpy
 import glob,os,sys
 
+# Reading the customer data
 try:
     customers = pd.read_csv("data/customers.csv")
 except OSError:
     print("Could not open/read customers file:")
     sys.exit()
 
+# Reading the products data
 try:
     products = pd.read_csv("data/products.csv")
 except OSError:
@@ -18,6 +20,8 @@ except OSError:
 files_list=glob.glob('data/transactions/*')
 #print(files_list)
 
+
+#Function for converting the data json data into dataframe
 def data_extract(transactions_1):
     df_final=pd.DataFrame()
     customer_id_l=[]
@@ -42,6 +46,7 @@ def data_extract(transactions_1):
     df_final['date_of_purchase']=date_of_purchase_l
     return df_final
 
+# Function for reading all the data from the transactions folder and appending all the data into a single dataframe
 def transactions():    
     final=pd.DataFrame()
     final['customer_id']=[]
@@ -59,13 +64,14 @@ def transactions():
 #         print(final)
     return final
 
+#Function to call the function 
 try: 
     final = transactions()
 except OSError:
     print("Could not open/read transactions file:")
     sys.exit()
 
-
+#Joining all the acquired tables for analysis
 txns = final
 df_final = pd.merge(customers, txns, how = 'left' , on='customer_id' )
 master_table = pd.merge(df_final, products, how = 'left', on='product_id')
@@ -73,6 +79,7 @@ purchase_count_table = pd.DataFrame(master_table.groupby(['customer_id']).agg({'
 
 purchase_count_table = purchase_count_table.rename(columns={'product_id': 'purchase_count'})
 
+#Final table with the same criteria that was mentioned
 master_table = pd.merge(master_table, purchase_count_table, how = 'left', on='customer_id')
 #print(master_table)
 
